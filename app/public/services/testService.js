@@ -7,6 +7,13 @@
                 console.log(result);
                 return result.data;
             });
+        };
+
+        this.getTestData = function(){
+          return $http.get('/api/testdata').then(function(result){
+              console.log(result);
+              return result.data;
+          })
         }
     }
 

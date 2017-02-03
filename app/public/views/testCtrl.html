@@ -1,3 +1,7 @@
 <div class="row">
-    {{testCtrl.message}} - {{testCtrl.test}}
+    {{testCtrl.message}} - {{testCtrl.test.name}}
+
+    <div ng-repeat="data in testCtrl.testData track by $index">
+        {{data.name}} - {{data.age}}
+    </div>
 </div>
