@@ -1,28 +1,33 @@
 var express = require('express');
 var User = require('../model/user');
 
+
 module.exports = (function ()
 {
     'use strict';
-    var setup = express.Router();
+    var register = express.Router();
 
-    setup.get('/', function (req, res)
+    register.post('/', function (req, res)
     {
-        var michal = new User({
-            name: 'michal', password: 'zaq1@WSX', admin: true
-        });
+        console.log(req.body.name);
+        if(!req.body || req.body.length === 0){
+            console.log("request body not found");
+            return res.sendStatus(500);
+        }else{
+            var user = new User({
+                name: req.body.name,
+                password: req.body.password
+            });
 
-        michal.save(function (err)
-        {
-            if (err) {
-                throw err;
-            }
+            user.save(function(err){
+                if(err) throw err;
 
-            console.log('User succesfully saved');
-            res.json({success: true});
-        });
+                res.status(200);
+                res.json({ success: true, message: 'Add user to database'});
+            })
+        }
     });
 
-    return setup;
+    return register;
 
 })();
