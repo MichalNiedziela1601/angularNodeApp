@@ -1,55 +1,77 @@
 var express = require('express');
-var fs = require('fs');
-var db = require('./data/testData');
-
+var User = require('../model/user');
+var jwt = require('jsonwebtoken');
+var Testdata = require('../model/testdata');
 
 module.exports = (function ()
 {
     'use strict';
     var api = express.Router();
 
-    api.get('/testdata/:id', function (req, res)
+    api.use(function(req,res,next){
+       var token = req.body.token || req.query.token || req.headers['x-auth-token'];
+
+        if(token){
+            jwt.verify(token, 'superSecret', function(err,decoded){
+                if(err){
+                    return res.json({ success: false, message: 'Failed to authenticate token'})
+                } else {
+                    req.decoded =decoded;
+                    next();
+                }
+            })
+        } else {
+            return res.status(403).send({
+                success: false,
+                message: 'No token provided'
+            })
+        }
+    });
+
+    api.get('/testdata/:name', function (req, res)
     {
-       db.get('test',req.params.id).then(function(result){
-           res.status(200).send(result);
-       })
+       Testdata.findOne({
+           name: req.params.name
+       }, function(err,testdata){
+           if(err) throw err;
+
+           res.json(testdata);
+       });
 
     });
 
     api.get('/testdata', function (req, res)
     {
-        db.getAll().then(function(result){
-            res.status(200).send(result);
-        }).catch(function(err){
-            res.status(404);
-            res.headers('content-type','text/html')
-            res.end('error');
+        Testdata.find({}, function(err,data){
+            if(err) throw err;
+
+            res.json(data);
         });
     });
 
     api.post('/testdata', function (req, res)
     {
         var data = req.body;
-        db.save('test', data).then(function (result)
-        {
-            res.status(200).send(result);
+        var test = new Testdata({
+            name: data.name, description: data.description, created_date: new Date()
+        });
+        console.log(test);
+        test.save(function(err){
+            if(err) throw err;
+
+            res.sendStatus(200);
         })
-                .catch(function (error)
-                {
-                    if (error == 'Invalid type') {
-                        console.log('Invalid');
-                        res.status(400);
-                        res.headers('content-type','text/html');
-                        res.end('error');
-                    }
-                    if (error == 'Entity not found') {
-                        res.status(404);
-                        res.set('content-type','text/html');
-                        res.end('error');
-                    }
-                });
 
     });
+
+    api.get('/users', function(req,res){
+        User.find({}, function(err,users){
+            if(err) throw err;
+
+            res.json(users);
+        })
+    });
+
 
     return api;
 })();

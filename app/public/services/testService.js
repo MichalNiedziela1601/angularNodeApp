@@ -3,7 +3,7 @@
 
     function TesteService($http, $q){
         this.getTest = function(){
-            return $http.get('/test').then(function(result){
+            return $http.get('/api/testdata').then(function(result){
                 console.log(result);
                 return result.data;
             });
@@ -11,9 +11,11 @@
 
         this.getTestData = function(){
           return $http.get('/api/testdata').then(function(result){
-              console.log(result);
               return result.data;
           })
+                  .catch(function(error){
+                      console.log(error);
+                  })
         }
     }
 

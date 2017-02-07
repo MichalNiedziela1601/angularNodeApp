@@ -7,14 +7,10 @@ var db = {
 };
 
 module.exports = {
-    get: function(type,id){
-        var typeDb = db[type];
-        if(!typeDb){
+    get: function(id){
 
-            return Promise.reject('Invalid type');
-        }
 
-        var item = typeDb[id];
+        var item = db.test[id];
         if(!item){
             return Promise.reject('Entity not found');
         }
@@ -22,7 +18,6 @@ module.exports = {
     },
 
     getAll: function(){
-        console.log(db.test[1]);
         if(db.test === {}){
             return Promise.reject('Empty');
         }else{
@@ -30,23 +25,18 @@ module.exports = {
         }
     },
 
-    save: function(type, entity){
-        var typeDb = db[type];
-        if(!typeDb){
-            return Promise.reject('Invalid  type');
-        }
+    save: function(entity){
 
         if(entity.id){
-            var existingItem = typeDb[entity.id];
+            var existingItem = db.test[entity.id];
             if(!existingItem){
                 return Promise.reject('Entity not found');
             }
         } else {
-            var id =sequenceId++;
-            entity.id = id;
+            entity.id = sequenceId++;
 
         }
-        typeDb[entity.id] = entity;
+        db.test[entity.id] = entity;
         return Promise.resolve(entity);
 
 
