@@ -8,34 +8,44 @@ module.exports = (function ()
     'use strict';
     var api = express.Router();
 
+    api.get('/testdata/:id', function (req, res)
+    {
+       db.get('test',req.params.id).then(function(result){
+           res.status(200).send(result);
+       })
+
+    });
+
     api.get('/testdata', function (req, res)
     {
-        fs.readFile(__dirname + '/data/test.json', 'utf-8', function (err, data)
-        {
-            var obj = JSON.parse(data);
-            res.send(obj);
+        db.getAll().then(function(result){
+            res.status(200).send(result);
+        }).catch(function(err){
+            res.status(404);
+            res.headers('content-type','text/html')
+            res.end('error');
         });
-
     });
 
     api.post('/testdata', function (req, res)
     {
         var data = req.body;
-        console.log('post', data);
-
-        db.save('tes', data).then(function (result)
+        db.save('test', data).then(function (result)
         {
-            res.end(result);
+            res.status(200).send(result);
         })
                 .catch(function (error)
                 {
-                    if (error === 'Ivalid type') {
-                        res.status(413);
-                        res.end();
+                    if (error == 'Invalid type') {
+                        console.log('Invalid');
+                        res.status(400);
+                        res.headers('content-type','text/html');
+                        res.end('error');
                     }
-                    if (error === 'Entity not found') {
+                    if (error == 'Entity not found') {
                         res.status(404);
-                        res.end();
+                        res.set('content-type','text/html');
+                        res.end('error');
                     }
                 });
 

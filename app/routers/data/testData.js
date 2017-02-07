@@ -1,14 +1,16 @@
 'use strict';
 
 var Promise = require('bluebird');
+var sequenceId = 1;
 var db = {
     test: {}
 };
-var sequenceId = 1;
+
 module.exports = {
     get: function(type,id){
         var typeDb = db[type];
         if(!typeDb){
+
             return Promise.reject('Invalid type');
         }
 
@@ -19,8 +21,16 @@ module.exports = {
         return Promise.resolve(item);
     },
 
+    getAll: function(){
+        console.log(db.test[1]);
+        if(db.test === {}){
+            return Promise.reject('Empty');
+        }else{
+            return Promise.resolve(db.test);
+        }
+    },
+
     save: function(type, entity){
-        console.log(entity);
         var typeDb = db[type];
         if(!typeDb){
             return Promise.reject('Invalid  type');
@@ -32,10 +42,12 @@ module.exports = {
                 return Promise.reject('Entity not found');
             }
         } else {
-            entity.id = sequenceId++;
-            typeDb[entity.id] = entity;
-            return Promise.resolve(entity);
+            var id =sequenceId++;
+            entity.id = id;
+
         }
+        typeDb[entity.id] = entity;
+        return Promise.resolve(entity);
 
 
     }
