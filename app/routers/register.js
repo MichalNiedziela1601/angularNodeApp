@@ -9,13 +9,13 @@ module.exports = (function ()
 
     register.post('/', function (req, res)
     {
-        console.log(req.body.name);
         if(!req.body || req.body.length === 0){
             console.log("request body not found");
             return res.sendStatus(500);
         }else{
             var user = new User({
-                name: req.body.name,
+                login: req.body.name,
+                email: req.body.email,
                 password: req.body.password
             });
 

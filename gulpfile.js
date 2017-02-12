@@ -6,12 +6,15 @@ var reload = browserSync.reload;
 
 gulp.task('default', ['browser-sync'], function ()
 {
+    'use strict';
+    gulp.watch(['app/public/**/*.html'], reload);
+    gulp.watch(['app/public/**/*.js'], reload);
 });
 
 gulp.task('browser-sync', ['nodemon'], function ()
 {
-    browserSync.init(null, {
-        proxy: "http://localhost:5000", files: ["app/**/*.*"], port: 7000
+    browserSync({
+        proxy: "http://localhost:5000", port: 7000
     });
 });
 
@@ -30,7 +33,7 @@ gulp.task('nodemon', function ()
     })
             .on('restart', function ()
             {
-                setTimeou(function ()
+                setTimeout(function ()
                 {
                     reload({stream: false})
                 }, 1000)

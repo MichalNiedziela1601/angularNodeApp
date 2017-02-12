@@ -8,7 +8,7 @@ module.exports = (function(){
     auth.post('/', function(req,res){
 
         User.findOne({
-            name: req.body.name
+            login: req.body.login
         }, function(err,user){
             if(err) throw err;
 
