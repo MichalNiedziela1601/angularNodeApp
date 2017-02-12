@@ -6,7 +6,6 @@ module.exports = (function(){
     'use strict';
     var auth = express.Router();
     auth.post('/', function(req,res){
-
         User.findOne({
             login: req.body.login
         }, function(err,user){

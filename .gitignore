@@ -8,4 +8,4 @@
 out
 gen
 node_modules
-app/public/bower_components
+/frontend/public/bower_components/

@@ -3,8 +3,7 @@
 
     function TesteService($http, $q){
         this.getTest = function(){
-            return $http.get('/api/testdata').then(function(result){
-                console.log(result);
+            return $http.get('http://localhost:5000/api/testdata').then(function(result){
                 return result.data;
             });
         };
