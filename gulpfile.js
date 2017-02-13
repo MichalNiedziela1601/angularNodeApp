@@ -23,7 +23,7 @@ gulp.task('nodemon', function ()
     var started = false;
 
     return nodemon({
-        script: 'app/server.js', ignore: ['gulpfile.js', 'node_modules/']
+        script: 'backend/server.js', ignore: ['gulpfile.js', 'node_modules/']
     }).on('start', function ()
     {
         if (!started) {

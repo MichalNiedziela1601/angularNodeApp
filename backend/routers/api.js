@@ -5,20 +5,23 @@ var Testdata = require('../model/testdata');
 var xmlify = require('xmlify');
 const config = require('../config');
 
-function byteCount(s) {
+function byteCount(s)
+{
     return encodeURI(s).split(/%..|./).length - 1;
 }
 
-function ensureAuthorized(req, res, next) {
+function ensureAuthorized(req, res, next)
+{
     var bearerToken;
     var bearerHeader = req.headers["authorization"];
     if (typeof bearerHeader !== 'undefined') {
         var bearer = bearerHeader.split(" ");
         bearerToken = bearer[1];
-        jwt.verify(bearerToken, 'superSecret', (err,decoded) => {
+        jwt.verify(bearerToken, 'superSecret', (err, decoded) =>
+        {
             'use strict';
             console.log(bearerToken);
-            if(err) {
+            if (err) {
                 return res.sendStatus(401);
             } else {
                 next();
@@ -36,47 +39,54 @@ module.exports = (function ()
     'use strict';
     var api = express.Router();
 
-   /* api.use(function (req, res, next)
+    api.get('/testdata/:id', function (req, res)
     {
-        if (req.url === '/testdata' && req.method === 'GET') {
-            next();
-        } else {
-            var token = req.body.token || req.query.token || req.headers['x-auth-token'];
-
-            if (token) {
-                jwt.verify(token, 'superSecret', function (err, decoded)
-                {
-                    if (err) {
-                        return res.json({success: false, message: 'Failed to authenticate token'})
-                    } else {
-                        req.decoded = decoded;
-                        next();
-                    }
-                })
-            } else {
-                return res.status(403).send({
-                    success: false, message: 'No token provided'
-                })
-            }
-        }
-    });
-*/
-    api.get('/testdata/:name', ensureAuthorized, function (req, res)
-    {
-        Testdata.find({
-            name: req.params.name
+        Testdata.findOne({
+            _id: req.params.id
         }, function (err, testdata)
         {
             if (err) {
                 throw err;
             }
-            if(testdata.length === 0){
+            if (testdata.length === 0) {
                 return res.sendStatus(404);
 
-            }else {
+            } else {
                 return res.json(testdata);
             }
         });
+
+    });
+
+    api.delete('/testdata/:id', function (req, res)
+    {
+        Testdata.remove({
+            _id: req.params.id
+        }, function (err)
+        {
+            if (err) {
+                throw err;
+            }
+
+            return res.json({success: true, message: 'Testdata removed'});
+        });
+    });
+
+    api.put('/testdata/:id', function (req, res)
+    {
+        var id = req.params.id;
+        Testdata.findOne({ _id: id}, function(err,testdata){
+            if(err) throw err;
+
+            testdata.name = req.body.name;
+            testdata.description = req.body.description;
+
+            testdata.save(function(err,data){
+                if(err) throw err;
+
+                return res.json(data);
+            })
+        })
 
     });
 
@@ -87,12 +97,11 @@ module.exports = (function ()
             if (err) {
                 throw err;
             }
-            if (req.accepts('json') || req.accepts('text/html')){
+            if (req.accepts('json') || req.accepts('text/html')) {
                 res.header('Content-Type', 'application/json');
                 return res.json(data);
-            }
-            else if(req.accepts('application/xml')){
-                res.header('Content-Type','text/xml');
+            } else if (req.accepts('application/xml')) {
+                res.header('Content-Type', 'text/xml');
 
                 var xml = xmlify(data);
                 return res.send(xml);
@@ -100,10 +109,10 @@ module.exports = (function ()
         });
     });
 
-    api.post('/testdata',  function (req, res)
+    api.post('/testdata', function (req, res)
     {
         var data = req.body;
-        if(byteCount(JSON.stringify(data)) > 100){
+        if (byteCount(JSON.stringify(data)) > 100) {
             return res.sendStatus(413);
         }
         var test = new Testdata({
@@ -115,12 +124,12 @@ module.exports = (function ()
                 throw err;
             }
 
-           return res.sendStatus(201);
+            return res.sendStatus(201);
         })
 
     });
 
-    api.get('/users', function (req, res)
+    api.get('/users',ensureAuthorized,function (req, res)
     {
         User.find({}, function (err, users)
         {
@@ -129,7 +138,7 @@ module.exports = (function ()
             }
 
 
-           return res.json(users);
+            return res.json(users);
         })
     });
 
