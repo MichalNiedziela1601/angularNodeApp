@@ -5,11 +5,12 @@ Headers use:
 /auth
 Method: POST
 use x-www-form-urlencoded or raw/json with content-type : application/json to authenticate
-require field: login, password, email
+require field: login, password
 
 /register
 Method: POST
 use x-www-form-urlencoded or raw/json with content-type : application/json to register
+require field: login, password, email
 
 /api/testdata
 Method: GET - get all testdata
