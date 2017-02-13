@@ -3,16 +3,7 @@ var User = require('../model/user');
 var jwt = require('jsonwebtoken');
 var Testdata = require('../model/testdata');
 var xmlify = require('xmlify');
-
-
-function checkSize(data){
-    'use strict';
-    var size = 0, key;
-    for(key in data){
-        if(data.hasOwnProperty(key)) size += data[key].length;
-    }
-    console.log(size);
-}
+const config = require('../config');
 
 function byteCount(s) {
     return encodeURI(s).split(/%..|./).length - 1;
@@ -24,10 +15,19 @@ function ensureAuthorized(req, res, next) {
     if (typeof bearerHeader !== 'undefined') {
         var bearer = bearerHeader.split(" ");
         bearerToken = bearer[1];
-        req.token = bearerToken;
-        next();
+        jwt.verify(bearerToken, 'superSecret', (err,decoded) => {
+            'use strict';
+            console.log(bearerToken);
+            if(err) {
+                return res.sendStatus(401);
+            } else {
+                next();
+            }
+
+        });
+
     } else {
-        res.send(403);
+        res.sendStatus(401);
     }
 }
 

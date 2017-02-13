@@ -12,6 +12,7 @@ var config = require('./config');
 var register = require('./routers/register');
 var auth = require('./routers/auth');
 var User = require('./model/user');
+var info = require('./routers/info');
 
 var app = express();
 var router = express.Router();
@@ -37,29 +38,40 @@ User.findOne({login: 'administrator', email: 'administrator@example.com', admin:
 
 });
 
+function shouldCompress (req, res) {
+    if (req.headers['x-no-compression']) {
+        // don't compress responses with this request header
+        return false
+    }
+
+    // fallback to standard filter function
+    return compression.filter(req, res)
+}
+
 app.set('superSecret', config.secret);
 
 
-router.get('/', function (req, res)
-{
-    res.sendFile(__dirname + '/public/index.html');
-});
+
+
+app.use(bodyParser.urlencoded({
+    extended: false,
+}));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
 app.use(morgan('dev'));
 app.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
     next();
 });
-app.use(compression());
-app.use(express.static(__dirname + '/public'));
-app.use('/', router);
+app.use(compression({ filter: shouldCompress}));
 app.use('/auth', auth);
 app.use('/api', api);
 app.use('/register', register);
+app.use('/info',info);
 
+module.exports = function(){
+    app.listen(port);
+    console.log('Server start at port: ' + port);
+};
 
-app.listen(port);
-console.log('Server start at port: ' + port);
